@@ -1,0 +1,33 @@
+name: Sync Jira to Google Sheets
+
+on:
+  schedule:
+    # Executa todo dia às 8h UTC (5h BRT)
+    - cron: "0 8 * * *"
+  workflow_dispatch:
+    # Permite rodar manualmente
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Sync Jira to Google Sheets
+        env:
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          JIRA_JQL: ${{ secrets.JIRA_JQL }}
+          GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+          GOOGLE_SHEET_TAB: ${{ secrets.GOOGLE_SHEET_TAB }}
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+        run: python scripts/sync_jira_to_sheet.py

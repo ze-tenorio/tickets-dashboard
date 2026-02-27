@@ -1,0 +1,8 @@
+# Garante que o servidor escute em localhost
+[server]
+address = "localhost"
+port = 8501
+headless = true
+
+[browser]
+gatherUsageStats = false
