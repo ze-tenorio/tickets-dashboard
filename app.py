@@ -11,27 +11,28 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
-# Caminhos
+# Caminhos (prioridade: Jira.csv, depois Jira - Jira.csv.csv)
 ROOT = Path(__file__).resolve().parent
-CSV_RAW = ROOT / "Jira - Jira.csv.csv"
+CSV_RAW_OPTIONS = [ROOT / "Jira.csv", ROOT / "Jira - Jira.csv.csv"]
 CSV_CLEAN = ROOT / "jira_tickets_clean.csv"
 NORMALIZE_SCRIPT = ROOT / "scripts" / "normalize_jira_csv.py"
 
 
 def load_data():
-    """Carrega o CSV limpo; se não existir, tenta normalizar o bruto."""
-    if CSV_CLEAN.exists():
-        df = pd.read_csv(CSV_CLEAN)
-    elif CSV_RAW.exists() and NORMALIZE_SCRIPT.exists():
+    """Carrega o CSV limpo; se existir Jira.csv (ou Jira - Jira.csv.csv), normaliza dele para sempre usar a base atual."""
+    raw_path = next((p for p in CSV_RAW_OPTIONS if p.exists()), None)
+    if raw_path and NORMALIZE_SCRIPT.exists():
         subprocess.run(
-            [sys.executable, str(NORMALIZE_SCRIPT), str(CSV_RAW), str(CSV_CLEAN)],
+            [sys.executable, str(NORMALIZE_SCRIPT), str(raw_path), str(CSV_CLEAN)],
             cwd=str(ROOT),
             check=True,
             capture_output=True,
         )
         df = pd.read_csv(CSV_CLEAN)
+    elif CSV_CLEAN.exists():
+        df = pd.read_csv(CSV_CLEAN)
     else:
-        st.error("Nenhum dado encontrado. Coloque o CSV do Jira na raiz ou execute o script de normalização.")
+        st.error("Nenhum dado encontrado. Coloque Jira.csv (ou Jira - Jira.csv.csv) na raiz ou gere jira_tickets_clean.csv.")
         st.stop()
     return df
 
