@@ -19,21 +19,22 @@ NORMALIZE_SCRIPT = ROOT / "scripts" / "normalize_jira_csv.py"
 
 
 def load_data():
-    """Carrega o CSV limpo; se existir Jira.csv (ou Jira - Jira.csv.csv), normaliza dele para sempre usar a base atual."""
-    raw_path = next((p for p in CSV_RAW_OPTIONS if p.exists()), None)
-    if raw_path and NORMALIZE_SCRIPT.exists():
-        subprocess.run(
-            [sys.executable, str(NORMALIZE_SCRIPT), str(raw_path), str(CSV_CLEAN)],
-            cwd=str(ROOT),
-            check=True,
-            capture_output=True,
-        )
-        df = pd.read_csv(CSV_CLEAN)
-    elif CSV_CLEAN.exists():
+    """Carrega o CSV limpo. Se existir jira_tickets_clean.csv, usa ele (inclui edições manuais). Senão, gera a partir de Jira.csv."""
+    if CSV_CLEAN.exists():
         df = pd.read_csv(CSV_CLEAN)
     else:
-        st.error("Nenhum dado encontrado. Coloque Jira.csv (ou Jira - Jira.csv.csv) na raiz ou gere jira_tickets_clean.csv.")
-        st.stop()
+        raw_path = next((p for p in CSV_RAW_OPTIONS if p.exists()), None)
+        if raw_path and NORMALIZE_SCRIPT.exists():
+            subprocess.run(
+                [sys.executable, str(NORMALIZE_SCRIPT), str(raw_path), str(CSV_CLEAN)],
+                cwd=str(ROOT),
+                check=True,
+                capture_output=True,
+            )
+            df = pd.read_csv(CSV_CLEAN)
+        else:
+            st.error("Nenhum dado encontrado. Coloque Jira.csv na raiz ou adicione jira_tickets_clean.csv.")
+            st.stop()
     return df
 
 

@@ -20,6 +20,17 @@ Depois abra no navegador: **http://localhost:8501**. Use os filtros na barra lat
 
 Se a página não carregar, confira se nenhum outro programa está usando a porta 8501 e tente de novo.
 
+### Como atualizar a base no dashboard
+
+O dashboard lê sempre o **`jira_tickets_clean.csv`**. Para atualizar (status, prioridade, etc.):
+
+1. **Edite o `jira_tickets_clean.csv`** na raiz do projeto (Excel, VS Code, etc.).
+2. **Local:** recarregue a página do dashboard (F5) ou reinicie o `streamlit run app.py`.
+3. **Streamlit Cloud:** faça commit do `jira_tickets_clean.csv` e push para o GitHub; o app vai redeployar sozinho e usar o arquivo novo. Não precisa rodar nenhum script.
+
+Se você não tiver o CSV limpo e tiver só o export bruto do Jira, coloque o **`Jira.csv`** na raiz e rode uma vez:  
+`python scripts/normalize_jira_csv.py Jira.csv jira_tickets_clean.csv` — isso gera o `jira_tickets_clean.csv` para você editar ou subir.
+
 ## Estrutura
 
 - **`app.py`** – Dashboard Streamlit (gráficos e tabela).
